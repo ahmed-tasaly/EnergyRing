@@ -11,15 +11,15 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import cn.vove7.energy_ring.floatwindow.FloatRingWindow
 import cn.vove7.energy_ring.listener.PowerEventReceiver
 import cn.vove7.energy_ring.listener.PowerSaveModeListener
-import cn.vove7.energy_ring.listener.RotationListener
 import cn.vove7.energy_ring.listener.ScreenListener
+import cn.vove7.energy_ring.service.ForegroundService
 import cn.vove7.energy_ring.util.Config
 import cn.vove7.smartkey.android.AndroidSettings
 import cn.vove7.smartkey.get
-import cn.vove7.energy_ring.service.ForegroundService
 import kotlin.concurrent.thread
 
 /**
@@ -53,12 +53,11 @@ class App : Application() {
         INS = this
         super.onCreate()
 
-        FloatRingWindow.start()
         ScreenListener.start()
         PowerEventReceiver.start()
-        if (Config.autoHideRotate) {
-            RotationListener.start()
-        }
+//        if (Config.autoHideRotate) {
+//        RotationListener.start()
+//        }
         PowerSaveModeListener.start(this)
 
         val foreService = Intent(this, ForegroundService::class.java)
@@ -79,7 +78,10 @@ class App : Application() {
             Config["app_version_code"] = BuildConfig.VERSION_CODE
             onFirstLaunch()
         }
-
+        ContextCompat.getMainExecutor(this).execute {
+            FloatRingWindow.reload()
+        }
+        FloatRingWindow.start()
     }
 
     private fun onFirstLaunch() = thread {

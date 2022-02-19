@@ -24,9 +24,13 @@ class ForegroundService : Service() {
         startForeground(1000, foreNotification)
     }
 
+    companion object{
+        private const val CHANNEL_ID = "foreground_service"
+    }
+
     private val channel
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel("foreground_service", "前台服务", NotificationManager.IMPORTANCE_MIN).apply {
+            NotificationChannel(CHANNEL_ID, "前台服务", NotificationManager.IMPORTANCE_MIN).apply {
                 setShowBadge(false)
                 setSound(null, null)
                 enableVibration(false)
@@ -36,17 +40,14 @@ class ForegroundService : Service() {
 
     private val builder
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val c = channel!!
-            getSystemService(NotificationManager::class.java)!!.createNotificationChannel(c)
-            NotificationCompat.Builder(this, c.id)
+            getSystemService(NotificationManager::class.java).createNotificationChannel(channel!!)
+            NotificationCompat.Builder(this, CHANNEL_ID)
         } else {
-            NotificationCompat.Builder(this)
+            NotificationCompat.Builder(this, CHANNEL_ID)
         }
 
     private val foreNotification
         get() = builder.apply {
-//            addAction(0, "唤醒".spanColor(googleBlue), getPendingIntent(VoiceAssistActivity.WAKE_UP))
-//            addAction(0, "屏幕助手".spanColor(googleBlue), PendingIntent.getActivity(this@ForegroundService, 0, ScreenAssistActivity.createIntent(delayCapture = true), 0))
             priority = NotificationCompat.PRIORITY_MIN
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             setSmallIcon(R.mipmap.ic_launcher)

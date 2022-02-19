@@ -15,13 +15,13 @@ import cn.vove7.energy_ring.util.weakLazy
  * @author Vove
  * 2020/5/11
  */
-class PillStyle : RotateAnimatorSupporter() {
+class PillStyle : RotateAnimatorSupporter<PillView>() {
     private val pvDelegate = weakLazy {
         PillView(App.INS)
     }
     private val pillView by pvDelegate
 
-    override val displayView: View
+    override val displayView: PillView
         get() = pillView
 
     override fun onAnimatorUpdate(rotateValue: Float) {
@@ -30,13 +30,17 @@ class PillStyle : RotateAnimatorSupporter() {
     }
 
     override fun setColor(color: Int) {
-        (displayView as PillView).apply {
+        displayView.apply {
             mainColor = color
         }
     }
 
+    override fun width(): Int = Config.spacingWidth + Config.size
+
+    override fun height(): Int = Config.size
+
     override fun update(progress: Int?) {
-        (displayView as PillView).apply {
+        displayView.apply {
             strokeWidthF = Config.strokeWidthF
 
             progress?.also {

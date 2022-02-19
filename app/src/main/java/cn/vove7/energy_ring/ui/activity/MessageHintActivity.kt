@@ -18,7 +18,6 @@ import cn.vove7.energy_ring.R
 import cn.vove7.energy_ring.floatwindow.FloatRingWindow
 import cn.vove7.energy_ring.util.Config
 import cn.vove7.energy_ring.util.inTimeRange
-import kotlinx.android.synthetic.main.activity_message_hint.*
 import java.util.*
 
 
@@ -37,23 +36,17 @@ class MessageHintActivity : AppCompatActivity() {
         @SuppressLint("InvalidWakeLockTag", "WakelockTimeout")
         fun stopAndScreenOn() {
             INS?.apply {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                    App.keyguardManager.requestDismissKeyguard(this, null)
-//                } else {
                 val wl = App.powerManager.newWakeLock(
                         PowerManager.ACQUIRE_CAUSES_WAKEUP or
                                 PowerManager.SCREEN_DIM_WAKE_LOCK, "cn.vove7.energy_ring.bright")
                 wl.acquire()
                 wl.release()
-//                }
                 finish()
             }
         }
 
         fun exit() {
-            INS?.apply {
-                finish()
-            }
+            INS?.apply { finish() }
         }
     }
 
@@ -102,8 +95,7 @@ class MessageHintActivity : AppCompatActivity() {
     private val task by lazy {
         object : TimerTask() {
             override fun run() {
-                val time = Calendar.getInstance()
-                val hour = time.get(Calendar.HOUR_OF_DAY)
+                val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
                 val (b, e) = Config.doNotDisturbRange
                 if (inTimeRange(hour, b, e)) {
                     Log.d("Debug :", "checkNeeded  ----> 进入勿扰时间段 $hour")
@@ -121,7 +113,7 @@ class MessageHintActivity : AppCompatActivity() {
             finish()
             return
         }
-        checkTimer.schedule(task, 10 * 60 * 1000)
+        checkTimer.schedule(task, 5 * 60 * 1000L)
         setContentView(R.layout.activity_message_hint)
         val cv = findViewById<View>(android.R.id.content)
 
@@ -134,7 +126,7 @@ class MessageHintActivity : AppCompatActivity() {
             lastClick = now
         }
         cv.fitsSystemWindows = false
-        rootView.fitsSystemWindows = false
+        findViewById<ViewGroup>(R.id.rootView).fitsSystemWindows = false
         applyRingViewStyle()
         startAnimator()
         INS = this
@@ -150,7 +142,7 @@ class MessageHintActivity : AppCompatActivity() {
             setMargins(Config.posX, Config.posY, 0, 0)
         }
         energyStyle.setColor(ledColor)
-        rootView.addView(energyStyle.displayView)
+        findViewById<ViewGroup>(R.id.rootView).addView(energyStyle.displayView)
     }
 
     private fun startAnimator() {

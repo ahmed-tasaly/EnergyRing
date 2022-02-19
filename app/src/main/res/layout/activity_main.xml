@@ -34,7 +34,7 @@
                 android:contentDescription="@string/type_ring"
                 android:padding="5dp"
                 android:src="@drawable/ic_type_ring"
-                android:tint="@color/tint_style_button" />
+                app:tint="@color/tint_style_button" />
 
             <ImageView
                 android:id="@+id/button_style_double_ring"
@@ -46,7 +46,7 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:src="@drawable/ic_type_double_ring"
-                android:tint="@color/tint_style_button" />
+                app:tint="@color/tint_style_button" />
 
             <ImageView
                 android:id="@+id/button_style_pill"
@@ -58,12 +58,12 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:src="@drawable/ic_type_pill"
-                android:tint="@color/tint_style_button" />
+                app:tint="@color/tint_style_button" />
 
         </LinearLayout>
     </FrameLayout>
 
-    <cn.vove7.energy_ring.ui.NoScrollableViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/style_view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"

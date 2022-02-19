@@ -36,7 +36,6 @@ class RingView @JvmOverloads constructor(
             Color.RED
     )
         set(value) {
-            field = value
             field = value.let {
                 when (it.size) {
                     1 -> intArrayOf(it[0], it[0])
@@ -62,6 +61,8 @@ class RingView @JvmOverloads constructor(
         paint.reset()
         paint.isAntiAlias = true
     }
+
+    var radialGradient: RadialGradient? = null
 
     override fun onDraw(canvas: Canvas?) {
         canvas ?: return
@@ -89,6 +90,7 @@ class RingView @JvmOverloads constructor(
             paint.shader = shader
         } else {
             paint.color = mainColor
+//            paint.shader = radialGradient
         }
         canvas.drawArc(rectF, 0f, 360f * progressf, false, paint)
     }
@@ -102,6 +104,11 @@ class RingView @JvmOverloads constructor(
             it.width = size
             it.height = size
         }
+//        radialGradient = RadialGradient(size / 2f,
+//                size / 2f, size / 2f,
+//                mainColor,
+//                Color.TRANSPARENT,
+//                Shader.TileMode.CLAMP)
     }
 
 }

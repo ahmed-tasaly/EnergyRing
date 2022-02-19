@@ -1,6 +1,5 @@
 package cn.vove7.energy_ring.energystyle
 
-import android.view.View
 import android.widget.FrameLayout
 import cn.vove7.energy_ring.App
 import cn.vove7.energy_ring.ui.view.RingView
@@ -14,7 +13,7 @@ import cn.vove7.energy_ring.util.weakLazy
  * @author Vove
  * 2020/5/11
  */
-class RingStyle : EnergyStyle, RotateAnimatorSupporter() {
+class RingStyle : RotateAnimatorSupporter<RingView>() {
 
     private val ringViewDelegate = weakLazy {
         RingView(App.INS).apply {
@@ -22,20 +21,23 @@ class RingStyle : EnergyStyle, RotateAnimatorSupporter() {
         }
     }
 
-    override val displayView: View by ringViewDelegate
+    override val displayView: RingView by ringViewDelegate
 
     override fun onAnimatorUpdate(rotateValue: Float) {
         displayView.rotation = rotateValue
     }
 
     override fun setColor(color: Int) {
-        (displayView as RingView).apply {
+        displayView.apply {
             mainColor = color
         }
     }
 
+    override fun height(): Int = Config.size
+    override fun width(): Int = Config.size
+
     override fun update(progress: Int?) {
-        (displayView as RingView).apply {
+        displayView.apply {
             strokeWidthF = Config.strokeWidthF
             if (progress != null) {
                 this.progress = progress

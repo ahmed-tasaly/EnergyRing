@@ -2,11 +2,10 @@ package cn.vove7.energy_ring.energystyle
 
 import android.animation.Animator
 import android.animation.ValueAnimator
-import android.os.SystemClock
 import android.util.Log
+import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.annotation.CallSuper
-import cn.vove7.energy_ring.App
 import cn.vove7.energy_ring.floatwindow.FloatRingWindow
 import cn.vove7.energy_ring.listener.PowerEventReceiver
 import cn.vove7.energy_ring.listener.ScreenListener
@@ -18,7 +17,7 @@ import cn.vove7.energy_ring.util.Config
  * @author Vove
  * 2020/5/12
  */
-abstract class RotateAnimatorSupporter : EnergyStyle {
+abstract class RotateAnimatorSupporter<T : View> : EnergyStyle<T> {
 
     val TAG = this::class.java.simpleName
 
@@ -29,8 +28,8 @@ abstract class RotateAnimatorSupporter : EnergyStyle {
     var rotateAnimator: Animator? = null
 
     private fun buildAnimator(
-            start: Float = 0f,
-            dur: Int
+        start: Float = 0f,
+        dur: Int
     ): Animator {
         val end: Float = 360 + start
 
@@ -41,7 +40,11 @@ abstract class RotateAnimatorSupporter : EnergyStyle {
             addUpdateListener {
                 lastRotation = it.animatedValue as Float
                 FloatRingWindow.checkValid() ?: return@addUpdateListener
-                onAnimatorUpdate(lastRotation)
+                if (!ScreenListener.screenOn) {
+                    pauseAnimator()
+                } else {
+                    onAnimatorUpdate(lastRotation)
+                }
             }
         }
     }
@@ -64,7 +67,7 @@ abstract class RotateAnimatorSupporter : EnergyStyle {
         Log.d(TAG, "reloadAnimation  ----> dur: $dur")
 
         rotateAnimator = buildAnimator(
-                lastRotation.let { if (it > 360) it - 360 else it }, dur)
+            lastRotation.let { if (it > 360) it - 360 else it }, dur)
         if (!FloatRingWindow.isShowing) {
             return
         }

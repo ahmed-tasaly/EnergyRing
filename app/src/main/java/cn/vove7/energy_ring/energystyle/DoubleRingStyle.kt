@@ -18,7 +18,7 @@ import cn.vove7.energy_ring.util.weakLazy
  * @author Vove
  * 2020/5/11
  */
-class DoubleRingStyle : RotateAnimatorSupporter(), MonitorListener {
+class DoubleRingStyle : RotateAnimatorSupporter<LinearLayout>(), MonitorListener {
     private val ringView1Delegate = weakLazy {
         RingView(App.INS)
     }
@@ -34,7 +34,7 @@ class DoubleRingStyle : RotateAnimatorSupporter(), MonitorListener {
 
     private val spacingView by spacingViewDelegate
 
-    override val displayView: View by lazy {
+    override val displayView: LinearLayout by lazy {
         LinearLayout(App.INS).apply {
             orientation = LinearLayout.HORIZONTAL
             addView(ringView1, Config.size, Config.size)
@@ -78,6 +78,10 @@ class DoubleRingStyle : RotateAnimatorSupporter(), MonitorListener {
             it.mainColor = color
         }
     }
+
+    override fun width(): Int = Config.size * 2 + Config.spacingWidth
+
+    override fun height(): Int = Config.size
 
     override fun update(progress: Int?) {
         arrayOf(ringView1, ringView2).forEachIndexed { index, it ->

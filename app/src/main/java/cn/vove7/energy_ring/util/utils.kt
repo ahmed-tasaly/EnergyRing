@@ -1,10 +1,12 @@
 package cn.vove7.energy_ring.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Point
 import android.os.BatteryManager
 import android.util.DisplayMetrics
 import android.util.Log
@@ -31,13 +33,13 @@ val isDarkMode: Boolean
 
 //正常 rotation 时的高宽
 val screenSize: Size by lazy {
-    val dm = DisplayMetrics()
-    App.windowsManager.defaultDisplay.getMetrics(dm)
+    val dm = Point()
+    App.windowsManager.defaultDisplay.getRealSize(dm)
     val roa = App.INS.getSystemService(WindowManager::class.java)!!.defaultDisplay.rotation
     if (roa == 0 || roa == 2) {
-        Size(dm.widthPixels, dm.heightPixels)
+        Size(dm.x, dm.y)
     } else {
-        Size(dm.heightPixels, dm.widthPixels)
+        Size(dm.y, dm.x)
     }
 }
 
@@ -46,6 +48,7 @@ val screenWidth: Int get() = screenSize.width
 val screenHeight: Int get() = screenSize.height
 
 
+@SuppressLint("CheckResult")
 fun pickColor(context: Context, initColor: Int? = null, title: String =  context.getString(R.string.pick_color), onColorPick: (color: Int) -> Unit) {
     val colors = mainColors
     MaterialDialog(context).show {
@@ -122,14 +125,14 @@ val Int.antiColor: Int
     }
 
 val isOnCharging: Boolean
-    get() = {
+    get() {
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val intent = App.INS.registerReceiver(null, filter)
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)
         val i = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
         Log.d("---", "isCharging ---> $i")
-        i
-    }.invoke()
+        return i
+    }
 
 val batteryLevel: Int
     get() {

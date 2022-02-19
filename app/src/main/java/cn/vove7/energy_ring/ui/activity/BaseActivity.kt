@@ -1,7 +1,9 @@
 package cn.vove7.energy_ring.ui.activity
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.WindowInsetsController
 import androidx.appcompat.app.AppCompatActivity
 import cn.vove7.energy_ring.util.isDarkMode
 

@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            app:max="2000"
+            app:max="10000"
             app:min="0"
             app:title="@string/position_of_horizontal" />
 
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            app:max="2000"
+            app:max="10000"
             app:min="0"
             app:title="@string/position_of_vertical" />
 
@@ -56,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            app:max="1000"
+            app:max="5000"
             app:min="0"
             app:title="@string/spacing" />
 

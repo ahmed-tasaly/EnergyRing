@@ -1,14 +1,12 @@
 package cn.vove7.energy_ring.ui.view
 
 import android.content.Context
-import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import android.widget.SeekBar
-import androidx.annotation.RequiresApi
 import cn.vove7.energy_ring.R
-import kotlinx.android.synthetic.main.accurate_seek_bar.view.*
+import cn.vove7.energy_ring.databinding.AccurateSeekBarBinding
+import com.google.android.material.slider.Slider
 
 /**
  * # AccurateSeekBar
@@ -16,79 +14,64 @@ import kotlinx.android.synthetic.main.accurate_seek_bar.view.*
  * @author Vove
  * 2020/5/9
  */
+@Suppress("HasPlatformType", "PropertyName")
 class AccurateSeekBar @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     var title: CharSequence? = null
         set(value) {
             field = value
-            title_view.text = value
+            vb.titleView.text = value
         }
 
-    val aboveO = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+    val minVal: Float get() = vb.seekBarView.valueFrom
 
-    var minVal: Int = 0
-        @RequiresApi(Build.VERSION_CODES.O)
+    val maxVal: Float get() = vb.seekBarView.valueTo
+
+    var progress: Float
         set(value) {
-            field = value
-            if (aboveO) {
-                seek_bar_view.min = value
-            } else {
-                maxVal = maxVal
-            }
+            vb.seekBarView.value = value.coerceAtMost(vb.seekBarView.valueTo)
+                .coerceAtLeast(vb.seekBarView.valueFrom)
         }
+        get() = vb.seekBarView.value
 
-    var maxVal: Int = 100
-        set(value) {
-            field = value
-            seek_bar_view.max = if (aboveO) {
-                value
-            } else {
-                value - minVal
-            }
-        }
-
-    var progress: Int = 0
-        set(value) {
-            field = value
-            seek_bar_view.progress = if (aboveO) value else value - minVal
-        }
+    private val vb by lazy {
+        AccurateSeekBarBinding.inflate(LayoutInflater.from(context), this, true)
+    }
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.accurate_seek_bar, this)
         val ats = context.obtainStyledAttributes(attrs, R.styleable.AccurateSeekBar)
         title = ats.getString(R.styleable.AccurateSeekBar_title)
-        maxVal = ats.getInt(R.styleable.AccurateSeekBar_max, 100)
-        minVal = ats.getInt(R.styleable.AccurateSeekBar_min, 0)
+
+        vb.seekBarView.valueTo = ats.getFloat(R.styleable.AccurateSeekBar_max, 100f)
+        vb.seekBarView.valueFrom = ats.getFloat(R.styleable.AccurateSeekBar_min, 0f)
 
         ats.recycle()
-        plus_view.setOnClickListener {
-            var p = seek_bar_view.progress + 1
-            seek_bar_view.progress = p
-            p = if (aboveO) p else p + minVal
-            onChangeAction?.invoke(p, true)
-            onStopAction?.invoke(p)
-        }
-        minus_view.setOnClickListener {
-            var p = seek_bar_view.progress - 1
-            seek_bar_view.progress = p
-            p = if (aboveO) p else p + minVal
-            onChangeAction?.invoke(p, true)
-            onStopAction?.invoke(p)
-        }
-        seek_bar_view.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val p = if (aboveO) progress else progress + minVal
-                onChangeAction?.invoke(p, fromUser)
+        vb.plusView.setOnClickListener {
+            val p = vb.seekBarView.value + 1
+            if (p <= vb.seekBarView.valueTo) {
+                vb.seekBarView.value = p
+                onChangeAction?.invoke(p.toInt(), true)
             }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+        }
+        vb.minusView.setOnClickListener {
+            val p = vb.seekBarView.value - 1
+            if (p >= vb.seekBarView.valueFrom) {
+                vb.seekBarView.value = p
+                onChangeAction?.invoke(p.toInt(), true)
+            }
+        }
+        vb.seekBarView.addOnChangeListener { _, value, user ->
+            onChangeAction?.invoke(value.toInt(), user)
+        }
+        vb.seekBarView.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {
                 onStartAction?.invoke()
             }
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                val p = if (aboveO) seekBar.progress else seekBar.progress + minVal
-                onStopAction?.invoke(p)
+
+            override fun onStopTrackingTouch(slider: Slider) {
+                onStopAction?.invoke(slider.value.toInt())
             }
         })
     }

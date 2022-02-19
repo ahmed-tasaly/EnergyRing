@@ -1,22 +1,22 @@
 package cn.vove7.energy_ring.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.*
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.CountDownTimer
-import android.os.Handler
+import android.os.*
 import android.view.MenuItem
 import android.view.View
 import android.widget.ActionMenuView
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.viewpager2.widget.ViewPager2
 import cn.vove7.energy_ring.App
 import cn.vove7.energy_ring.BuildConfig
 import cn.vove7.energy_ring.R
 import cn.vove7.energy_ring.floatwindow.FloatRingWindow
 import cn.vove7.energy_ring.listener.NotificationListener
-import cn.vove7.energy_ring.listener.RotationListener
 import cn.vove7.energy_ring.model.ShapeType
 import cn.vove7.energy_ring.ui.adapter.StylePagerAdapter
 import cn.vove7.energy_ring.util.Config
@@ -34,13 +34,40 @@ import com.afollestad.materialdialogs.list.listItemsMultiChoice
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.ceil
 
+@Suppress("PrivatePropertyName")
 class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
 
     private val pageAdapter by lazy {
-        StylePagerAdapter(supportFragmentManager)
+        StylePagerAdapter(supportFragmentManager, lifecycle)
+    }
+
+    private val style_view_pager by lazy {
+        findViewById<ViewPager2>(R.id.style_view_pager)
+    }
+
+    private val view_info_view by lazy {
+        findViewById<Button>(R.id.view_info_view)
+    }
+
+    private val import_view by lazy {
+        findViewById<Button>(R.id.import_view)
+    }
+
+    private val menu_view by lazy {
+        findViewById<ActionMenuView>(R.id.menu_view)
+    }
+
+    private val button_style_ring by lazy {
+        findViewById<View>(R.id.button_style_ring)
+    }
+    private val button_style_double_ring by lazy {
+        findViewById<View>(R.id.button_style_double_ring)
+    }
+
+    private val button_style_pill by lazy {
+        findViewById<View>(R.id.button_style_pill)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +76,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
         setContentView(R.layout.activity_main)
 
         style_view_pager.adapter = pageAdapter
+        style_view_pager.isUserInputEnabled = false
 
         if (BuildConfig.DEBUG) {
             view_info_view.setOnLongClickListener {
@@ -64,7 +92,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
 
         menuInflater.inflate(R.menu.main, menu_view.menu)
         menu_view.setOnMenuItemClickListener(this)
-        menu_view.overflowIcon = getDrawable(R.drawable.ic_settings)
+        menu_view.overflowIcon = ContextCompat.getDrawable(this, R.drawable.ic_settings)
         menu_view.menu.findItem(R.id.rotate_auto_hide).isChecked = Config.autoHideRotate
         menu_view.menu.findItem(R.id.fullscreen_auto_hide).isChecked = Config.autoHideFullscreen
         menu_view.menu.findItem(R.id.auto_hide_in_power_save_mode).isChecked = Config.powerSaveHide
@@ -73,7 +101,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
     }
 
     private fun checkNotificationService() {
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             if (isFinishing) return@postDelayed
 
             if (Config.notificationListenerEnabled && !NotificationListener.isConnect) {
@@ -118,11 +146,6 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
             R.id.rotate_auto_hide -> {
                 Config.autoHideRotate = !Config.autoHideRotate
                 item.isChecked = Config.autoHideRotate
-                if (item.isChecked && !RotationListener.enabled) {
-                    RotationListener.start()
-                } else {
-                    RotationListener.stop()
-                }
             }
             R.id.auto_hide_in_power_save_mode -> {
                 Config.powerSaveHide = !Config.powerSaveHide
@@ -139,6 +162,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
         return true
     }
 
+    @SuppressLint("CheckResult")
     private fun pickColorMode() {
         if (Config.energyType == ShapeType.PILL) {
             Toast.makeText(this, R.string.not_support_current_mode, Toast.LENGTH_SHORT).show()
@@ -156,10 +180,12 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
 
     private fun refreshMenu() {
         menu_view.menu.findItem(R.id.menu_color_mode).title = getString(R.string.color_mode) + ": " +
-                resources.getStringArray(R.array.modes_of_color)[Config.colorMode]
+            resources.getStringArray(R.array.modes_of_color)[Config.colorMode]
     }
 
     private var firstIn = true
+
+    @SuppressLint("CheckResult")
     override fun onResume() {
         super.onResume()
         if (!firstIn && Config.tipOfRecent) {
@@ -206,6 +232,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun saveConfig(info: ConfigInfo, name: CharSequence? = null) {
         MaterialDialog(this@MainActivity).show {
             title(R.string.config_title)
@@ -222,6 +249,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
         finishAndRemoveTask()
     }
 
+    @SuppressLint("CheckResult")
     private fun pickPreSet() {
         MaterialDialog(this).show {
             val allDs = Config.presetDevices.toMutableList().also {
@@ -249,6 +277,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun editLocalConfig() {
         MaterialDialog(this).show {
             title(R.string.edit_local_config)
@@ -275,7 +304,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
     }
 
     private fun refreshData() {
-        pageAdapter.getItem(style_view_pager.currentItem).onResume()
+        pageAdapter.createFragment(style_view_pager.currentItem).onResume()
         styleButtons[Config.energyType.ordinal].callOnClick()
     }
 
@@ -341,6 +370,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun donate(d: MaterialDialog) {
         MaterialDialog(this).show {
             title(R.string.way_support)
@@ -377,7 +407,7 @@ class MainActivity : BaseActivity(), ActionMenuView.OnMenuItemClickListener {
                     startActivity(intent)
                 } catch (e: ActivityNotFoundException) {
                     Toast.makeText(this@MainActivity,
-                            R.string.no_browser_available, Toast.LENGTH_SHORT).show()
+                        R.string.no_browser_available, Toast.LENGTH_SHORT).show()
                 }
             }
         }
