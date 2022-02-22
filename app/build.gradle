@@ -16,8 +16,8 @@ android {
         applicationId "cn.vove7.energy_ring"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 20504
-        versionName "2.5.4"
+        versionCode 20505
+        versionName "2.5.5"
 
     }
 
