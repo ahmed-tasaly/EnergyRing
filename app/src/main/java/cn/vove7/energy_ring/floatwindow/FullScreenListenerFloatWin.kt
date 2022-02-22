@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
 import android.widget.TextView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import cn.vove7.energy_ring.App
 import cn.vove7.energy_ring.BuildConfig
 import cn.vove7.energy_ring.R
@@ -35,6 +36,7 @@ object FullScreenListenerFloatWin {
                 if (BuildConfig.DEBUG) {
                     setBackgroundColor(R.color.colorPrimary)
                     setTextColor(Color.WHITE)
+                    text = FloatRingWindow.debugInfo
                 }
                 setOnSystemUiVisibilityChangeListener {
                     Log.d(TAG, "OnSystemUiVisibility: $it")
@@ -57,27 +59,30 @@ object FullScreenListenerFloatWin {
             if (FloatRingWindow.currentRotation / 2 == 0) screenWidth / 2
             else screenHeight / 2, 0,
             when {
-                AccService.hasOpend -> WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+//                AccService.hasOpend -> WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                 else -> WindowManager.LayoutParams.TYPE_PHONE
             },
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, 0
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, PixelFormat.RGBA_8888
         ).apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 layoutInDisplayCutoutMode =
                     WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             }
-            format = PixelFormat.RGBA_8888
             gravity = Gravity.TOP or Gravity.START
         }
 
     var showing = false
 
-    fun update() {
+    private fun update() {
         Log.d("FullScreenListenerFloatWin", "update: ")
         FloatRingWindow.reload()
+        updateDebugInfo()
+    }
+
+    fun updateDebugInfo() {
         kotlin.runCatching {
             view.text = FloatRingWindow.debugInfo
 //                wm.updateViewLayout(view, layoutParams)
@@ -90,6 +95,7 @@ object FullScreenListenerFloatWin {
         if (showing) {
             return
         }
+        Log.d(TAG, "start: full show")
         showing = true
         wm.addView(view, layoutParams)
     }

@@ -27,7 +27,7 @@
     <string name="auto_hide_on_rotate">[屏幕方向切换]自动隐藏</string>
     <string name="auto_hide_on_fullscreen">[全屏]自动隐藏</string>
     <string name="multi_color_setting">颜色设置(长按删除)</string>
-    <string name="multi_color_setting_charging">Color setting while charging (long press to delete)</string>
+    <string name="multi_color_setting_charging">充电时颜色设置</string>
     <string name="single_color_setting">颜色设置</string>
     <string name="ring_bg_color">背景色</string>
     <string name="rotate_speed_when_charging">转速[充电时]</string>

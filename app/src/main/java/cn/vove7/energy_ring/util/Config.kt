@@ -66,11 +66,11 @@ object Config : BaseConfig {
 
     //2千分比值
     var posXf by smartKey(148 * 5)
-    val posX get() = ((posXf / PPP) * screenWidth).toInt()
+    val posX get() = ((posXf.toFloat() / PPP) * screenWidth).toInt()
 
     //2千分比值
     var posYf by smartKey(110)
-    val posY get() = ((posYf / PPP) * screenHeight).toInt()
+    val posY get() = ((posYf.toFloat() / PPP) * screenHeight).toInt()
 
     var spacingWidthF by smartKey(50)
     val spacingWidth get() = ((spacingWidthF / PPP) * screenWidth).toInt()
@@ -198,8 +198,7 @@ object Config : BaseConfig {
 }
 
 //形状
-@Suppress("ArrayInDataClass")
-data class ConfigInfo(
+class ConfigInfo(
     @SerializedName("name", alternate = ["a"])
     var name: String,
     @SerializedName("model", alternate = ["b"])

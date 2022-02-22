@@ -173,15 +173,21 @@ object FloatRingWindow {
                 update()
                 return
             }
-            try {
-                bodyView.tag = false
-                isShowing = false
-                wm.removeViewImmediate(bodyView)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            close()
         }
         show()
+    }
+
+    @Synchronized
+    fun close() {
+        if(!isShowing) return
+        try {
+            bodyView.tag = false
+            isShowing = false
+            wm.removeViewImmediate(bodyView)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     @Synchronized
@@ -256,6 +262,7 @@ object FloatRingWindow {
 
         if (BuildConfig.DEBUG) {
             debugInfo = """旋转: $cond1 全屏: $cond2 省电: $cond3
+                |full:${FullScreenListenerFloatWin.isFullScreen}
             |pos: ${getCenterPoint()}
             |rotation: $currentRotation
         """.trimMargin()

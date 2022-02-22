@@ -3,6 +3,7 @@ package cn.vove7.energy_ring.service
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import cn.vove7.energy_ring.floatwindow.FloatRingWindow
@@ -29,12 +30,12 @@ class AccService : AccessibilityService() {
         FullScreenListenerFloatWin.reload()
     }
 
-
     override fun onCreate() {
         INS = this
         super.onCreate()
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            FloatRingWindow.close()
             FloatRingWindow.reload()
             FullScreenListenerFloatWin.reload()
         }, 1000)
